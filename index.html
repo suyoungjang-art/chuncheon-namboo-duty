@@ -275,6 +275,27 @@
     0%, 100%{ box-shadow:0 0 0 2px var(--gold) inset, 0 4px 14px rgba(199,154,61,0.35); }
     50%{ box-shadow:0 0 0 4px var(--gold) inset, 0 4px 20px rgba(199,154,61,0.6); }
   }
+
+  /* notice */
+  .notice-card{
+    background:var(--card); border:1px solid var(--gold-soft); border-left:5px solid var(--gold);
+    border-radius:14px; padding:16px 20px; margin-bottom:22px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .notice-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .notice-head .notice-label{ font-weight:800; color:var(--pine-deep); font-size:14.5px; }
+  .notice-actions{ margin-left:auto; display:flex; gap:8px; }
+  .notice-body{ font-size:13.5px; color:var(--ink-soft); }
+  .notice-file{
+    display:inline-flex; align-items:center; gap:8px; background:#FBF6E9; border:1px solid var(--gold-soft);
+    border-radius:10px; padding:8px 12px; color:var(--pine-deep); text-decoration:none; font-weight:700; font-size:13.5px;
+  }
+  .notice-file:hover{ background:var(--gold-soft); }
+  .notice-meta{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+  @media (max-width:640px){
+    .notice-head{ flex-direction:column; align-items:flex-start; }
+    .notice-actions{ margin-left:0; }
+  }
 </style>
 </head>
 <body>
@@ -295,6 +316,18 @@
       <span><span class="dot" style="background:var(--gold)"></span>🔍 검색된 근무일</span>
     </div>
   </header>
+
+  <div class="notice-card" id="noticeCard">
+    <div class="notice-head">
+      <span class="notice-label">📌 당직 공지사항</span>
+      <div class="notice-actions">
+        <button class="btn btn-ghost" id="noticeUploadBtn" style="font-size:12.5px; padding:7px 12px;">공지 PDF 올리기/교체</button>
+        <button class="btn btn-ghost" id="noticeRemoveBtn" style="font-size:12.5px; padding:7px 12px; display:none;">삭제</button>
+      </div>
+    </div>
+    <div id="noticeBody" class="notice-body">불러오는 중...</div>
+    <input type="file" id="noticeFileInput" accept="application/pdf" style="display:none;">
+  </div>
 
   <div class="monthbar">
     <button class="navbtn" id="prevMonth" aria-label="이전 달">◀</button>
@@ -427,6 +460,7 @@
   }
 
   const sbClient = isConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+  window.sbClient = sbClient; // 공지사항 PDF 업로드(Storage)에서 사용
 
   // 기존 코드는 그대로 window.storage.get(key)/set(key, value)를 호출합니다.
   // 여기서만 그 호출을 브라우저 임시저장이 아니라 Supabase(모두가 함께 보는 공용 DB)로 연결합니다.
@@ -466,6 +500,7 @@
         const mp = document.getElementById('monthPicker');
         const cur = mp ? mp.value : '';
         const relevant = changedKey === 'roster:master' || changedKey === 'holidays:master' || changedKey === 'admin:pin'
+          || changedKey === 'notice:current'
           || changedKey === ('assignments:' + cur) || changedKey === ('swaps:' + cur);
         if(relevant){
           clearTimeout(reloadTimer);
@@ -1109,11 +1144,98 @@
   document.getElementById('nextMonth').addEventListener('click', () => goToMonth(shiftMonth(currentMonth, 1)));
   document.getElementById('monthPicker').addEventListener('change', (e) => { if(e.target.value) goToMonth(e.target.value); });
 
+  // ---------- 공지사항 (PDF) ----------
+  const KEY_NOTICE = 'notice:current';
+  let NOTICE = null;
+  const noticeBody = document.getElementById('noticeBody');
+  const noticeFileInput = document.getElementById('noticeFileInput');
+  const noticeRemoveBtn = document.getElementById('noticeRemoveBtn');
+
+  async function loadNotice(){
+    try{
+      const res = await window.storage.get(KEY_NOTICE, true);
+      NOTICE = res && res.value ? JSON.parse(res.value) : null;
+    }catch(e){ NOTICE = null; }
+  }
+  async function saveNotice(){
+    try{ await window.storage.set(KEY_NOTICE, JSON.stringify(NOTICE), true); }
+    catch(e){ console.error('저장 실패(공지사항)', e); }
+  }
+  function renderNotice(){
+    if(NOTICE && NOTICE.url){
+      const uploaded = new Date(NOTICE.uploadedAt).toLocaleString('ko-KR', {year:'numeric', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+      noticeBody.innerHTML = `
+        <a class="notice-file" href="${NOTICE.url}" target="_blank" rel="noopener">📄 ${NOTICE.name}</a>
+        <div class="notice-meta">${uploaded} 등록${NOTICE.uploader ? ' · ' + NOTICE.uploader : ''} · 눌러서 확인하거나 다운로드하세요.</div>
+      `;
+      noticeRemoveBtn.style.display = 'inline-block';
+    } else {
+      noticeBody.innerHTML = `<span style="color:var(--ink-soft);">등록된 공지사항이 없습니다.</span>`;
+      noticeRemoveBtn.style.display = 'none';
+    }
+  }
+
+  document.getElementById('noticeUploadBtn').addEventListener('click', () => {
+    const input = prompt('공지사항을 올리려면 관리자 인증번호를 입력하세요.');
+    if(input === null) return;
+    if(input !== ADMIN_PIN){ alert('인증번호가 일치하지 않습니다.'); return; }
+    if(!window.sbClient){ alert('Supabase 연결이 설정되지 않아 업로드할 수 없습니다.'); return; }
+    noticeFileInput.click();
+  });
+
+  noticeFileInput.addEventListener('change', async () => {
+    const file = noticeFileInput.files[0];
+    noticeFileInput.value = '';
+    if(!file) return;
+    if(file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){
+      alert('PDF 파일만 올릴 수 있습니다.');
+      return;
+    }
+    if(file.size > 20 * 1024 * 1024){
+      alert('파일이 너무 큽니다 (최대 20MB).');
+      return;
+    }
+    const uploader = prompt('올리는 분 이름을 입력해 주세요. (기록용, 생략 가능)') || '';
+    const prevPath = NOTICE && NOTICE.path;
+    const path = `notice-${Date.now()}.pdf`; // 저장 경로는 영문/숫자만 사용 (원래 파일명은 표시용으로 따로 저장됨)
+    try{
+      const { error: upErr } = await window.sbClient.storage.from('notices').upload(path, file, { contentType: 'application/pdf', upsert: false });
+      if(upErr) throw upErr;
+      const { data: pub } = window.sbClient.storage.from('notices').getPublicUrl(path);
+      NOTICE = { name: file.name, path, url: pub.publicUrl, uploadedAt: Date.now(), uploader: uploader.trim() };
+      await saveNotice();
+      renderNotice();
+      if(prevPath){
+        try{ await window.sbClient.storage.from('notices').remove([prevPath]); }catch(e){ /* 이전 파일 정리 실패는 무시 */ }
+      }
+      alert('공지사항이 등록되었습니다.');
+    }catch(e){
+      console.error('공지사항 업로드 실패', e);
+      alert('업로드에 실패했습니다: ' + (e.message || e));
+    }
+  });
+
+  noticeRemoveBtn.addEventListener('click', async () => {
+    const input = prompt('공지사항을 삭제하려면 관리자 인증번호를 입력하세요.');
+    if(input === null) return;
+    if(input !== ADMIN_PIN){ alert('인증번호가 일치하지 않습니다.'); return; }
+    if(!confirm('등록된 공지사항을 삭제하시겠습니까?')) return;
+    const old = NOTICE;
+    NOTICE = {}; // duty_kv.value 컬럼은 NOT NULL이라 빈 객체로 "공지 없음"을 표시
+    await saveNotice();
+    renderNotice();
+    if(old && old.path && window.sbClient){
+      try{ await window.sbClient.storage.from('notices').remove([old.path]); }catch(e){ console.error('파일 삭제 실패', e); }
+    }
+  });
+
   // ---------- init ----------
   (async function init(){
     await loadRoster();
     await loadHolidays();
     await loadAdminPin();
+    await loadNotice();
+    renderNotice();
     await loadMonth(currentMonth);
     renderCalendar();
     renderHistory('');
