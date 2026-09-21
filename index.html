@@ -218,6 +218,8 @@
   .msg.err{color:var(--rust);}
   .msg.ok{color:var(--pine);}
 
+  .admin-menu{display:flex; flex-direction:column; gap:8px; margin-bottom:18px;}
+  .admin-menu-btn{width:100%; text-align:left; padding:12px 14px;}
   .modal-section{border-top:1px solid var(--line); padding-top:16px; margin-top:16px;}
   .modal-section:first-of-type{border-top:none; padding-top:0; margin-top:0;}
   .modal-section h4{margin:0 0 10px; font-size:13.5px; font-weight:800; color:var(--pine-deep);}
@@ -345,10 +347,7 @@
 
   <div class="toolbar">
     <input class="search" id="searchBox" type="text" placeholder="이름으로 검색 (예: 박연옥) — 이 달의 근무일과 변경 이력을 찾습니다">
-    <button class="btn btn-ghost" id="rosterBtn">전체 당직순번 관리</button>
-    <button class="btn btn-ghost" id="holidayBtn">공휴일 관리</button>
-    <button class="btn btn-primary" id="resetBtn">이 달 초기화</button>
-    <button class="btn btn-ghost" id="changePinBtn" title="관리자 인증번호 변경">인증번호 변경</button>
+    <button class="btn btn-ghost" id="adminModeBtn">🔐 관리자 모드</button>
   </div>
 
   <div id="searchResult"></div>
@@ -365,6 +364,24 @@
     사단법인 동부디아코니아 춘천남부노인복지관 · 강원특별자치도 춘천시 방송길 86<br>
     이 화면에서 남긴 변경 사항과 특이사항은 이 링크를 여는 모든 직원에게 공유됩니다. 신청자 이름을 정확히 입력해 주세요.
   </footer>
+</div>
+
+<!-- Admin mode modal -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal">
+    <button class="close-x" id="closeAdminModal" aria-label="닫기">✕</button>
+    <h3>🔐 관리자 모드</h3>
+    <p class="desc">아래 기능은 관리자만 사용합니다. 필요한 항목을 선택하세요.</p>
+    <div class="admin-menu">
+      <button class="btn btn-ghost admin-menu-btn" id="rosterBtn">전체 당직순번 관리</button>
+      <button class="btn btn-ghost admin-menu-btn" id="holidayBtn">공휴일 관리</button>
+      <button class="btn btn-ghost admin-menu-btn" id="resetBtn">이 달 초기화</button>
+      <button class="btn btn-ghost admin-menu-btn" id="changePinBtn">인증번호 변경</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="closeAdminDone">닫기</button>
+    </div>
+  </div>
 </div>
 
 <!-- Holiday modal -->
@@ -988,6 +1005,18 @@
     }
   });
 
+  // ---------- 관리자 모드 (아래 4개 관리 기능을 인증번호 1번으로 묶어서 사용) ----------
+  const adminOverlay = document.getElementById('adminOverlay');
+  document.getElementById('adminModeBtn').addEventListener('click', () => {
+    const input = prompt('관리자 모드로 들어가려면 인증번호를 입력하세요.');
+    if(input === null) return;
+    if(input !== ADMIN_PIN){ alert('인증번호가 일치하지 않습니다.'); return; }
+    adminOverlay.classList.add('show');
+  });
+  document.getElementById('closeAdminModal').addEventListener('click', () => adminOverlay.classList.remove('show'));
+  document.getElementById('closeAdminDone').addEventListener('click', () => adminOverlay.classList.remove('show'));
+  adminOverlay.addEventListener('click', (e) => { if(e.target === adminOverlay) adminOverlay.classList.remove('show'); });
+
   // ---------- roster reference ----------
   // ---------- holiday editor ----------
   const holidayOverlay = document.getElementById('holidayOverlay');
@@ -1017,9 +1046,7 @@
   }
 
   document.getElementById('holidayBtn').addEventListener('click', () => {
-    const input = prompt('공휴일을 관리하려면 관리자 인증번호를 입력하세요.');
-    if(input === null) return;
-    if(input !== ADMIN_PIN){ alert('인증번호가 일치하지 않습니다.'); return; }
+    adminOverlay.classList.remove('show');
     document.getElementById('holidayMsg').textContent = '';
     document.getElementById('newHolidayDate').value = '';
     document.getElementById('newHolidayName').value = '';
@@ -1088,9 +1115,7 @@
   }
 
   document.getElementById('rosterBtn').addEventListener('click', () => {
-    const input = prompt('전체 당직순번을 수정하려면 관리자 인증번호를 입력하세요.');
-    if(input === null) return;
-    if(input !== ADMIN_PIN){ alert('인증번호가 일치하지 않습니다.'); return; }
+    adminOverlay.classList.remove('show');
     draftRoster = ROSTER.slice();
     document.getElementById('rosterMsg').textContent = '';
     renderRosterList();
@@ -1122,9 +1147,7 @@
 
   // ---------- reset ----------
   document.getElementById('changePinBtn').addEventListener('click', async () => {
-    const current = prompt('현재 관리자 인증번호를 입력하세요.');
-    if(current === null) return;
-    if(current !== ADMIN_PIN){ alert('현재 인증번호가 일치하지 않습니다.'); return; }
+    adminOverlay.classList.remove('show');
     const next = prompt('새 인증번호를 입력하세요 (4자리 이상 권장).');
     if(next === null || !next.trim()){ return; }
     const confirmNext = prompt('새 인증번호를 다시 입력해 주세요.');
@@ -1135,9 +1158,7 @@
   });
 
   document.getElementById('resetBtn').addEventListener('click', async () => {
-    const input = prompt('이 달을 초기화하려면 관리자 인증번호를 입력하세요.');
-    if(input === null) return;
-    if(input !== ADMIN_PIN){ alert('인증번호가 일치하지 않습니다.'); return; }
+    adminOverlay.classList.remove('show');
     if(!confirm(`${monthLabelText(currentMonth)}의 모든 변경 이력을 지우고 기본 상태로 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
     assignments = generateDefaultMonth(currentMonth);
     swaps = [];
