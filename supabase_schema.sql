@@ -28,3 +28,20 @@ create policy "public update" on public.duty_kv
 
 -- 3) 실시간 동기화(다른 사람이 저장하면 내 화면도 자동 새로고침) 사용을 위해 추가
 alter publication supabase_realtime add table public.duty_kv;
+
+-- 4) 당직 공지사항 PDF 파일 저장용 버킷
+insert into storage.buckets (id, name, public)
+  values ('notices', 'notices', true)
+  on conflict (id) do nothing;
+
+drop policy if exists "notices public read" on storage.objects;
+create policy "notices public read" on storage.objects
+  for select using (bucket_id = 'notices');
+
+drop policy if exists "notices public insert" on storage.objects;
+create policy "notices public insert" on storage.objects
+  for insert with check (bucket_id = 'notices');
+
+drop policy if exists "notices public delete" on storage.objects;
+create policy "notices public delete" on storage.objects
+  for delete using (bucket_id = 'notices');
