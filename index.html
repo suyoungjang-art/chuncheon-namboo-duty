@@ -259,6 +259,22 @@
     .cell .datenum{min-width:44px;}
     .badge-rot{position:static; margin-left:auto;}
   }
+
+  /* search highlight */
+  .cell.search-hit{
+    border-color:var(--gold);
+    box-shadow:0 0 0 2px var(--gold) inset, 0 4px 14px rgba(199,154,61,0.35);
+    background:var(--gold-soft);
+    animation:search-pulse 1.6s ease-in-out 2;
+  }
+  .cell.search-hit::before{
+    content:"📍";
+    position:absolute; top:6px; left:8px; font-size:13px; line-height:1;
+  }
+  @keyframes search-pulse{
+    0%, 100%{ box-shadow:0 0 0 2px var(--gold) inset, 0 4px 14px rgba(199,154,61,0.35); }
+    50%{ box-shadow:0 0 0 4px var(--gold) inset, 0 4px 20px rgba(199,154,61,0.6); }
+  }
 </style>
 </head>
 <body>
@@ -276,6 +292,7 @@
       
       <span><span class="dot" style="background:var(--closed-ink)"></span>휴관 / 정기휴무 / 대체휴일</span>
       <span><span class="dot" style="background:var(--rust)"></span>변경된 근무</span>
+      <span><span class="dot" style="background:var(--gold)"></span>🔍 검색된 근무일</span>
     </div>
   </header>
 
@@ -737,6 +754,7 @@
       if(cur.person && wasSwapped(ds)) cls += ' swapped';
       cell.className = cls;
       cell.tabIndex = 0;
+      cell.dataset.date = ds;
 
       let inner = `<div><span class="datenum">${d}</span>`;
       if(cur.person){
@@ -758,6 +776,21 @@
       cell.addEventListener('keydown', (ev) => { if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); openModal(ds); } });
       grid.appendChild(cell);
     }
+    highlightSearch(document.getElementById('searchBox').value.trim());
+  }
+
+  // ---------- 이름 검색 시 달력에서 위치 표시 ----------
+  function highlightSearch(name){
+    document.querySelectorAll('#calGrid .cell.search-hit').forEach(c => c.classList.remove('search-hit'));
+    if(!name) return [];
+    const matches = Object.keys(assignments)
+      .filter(d => assignments[d].person && assignments[d].person.includes(name))
+      .sort();
+    matches.forEach(ds => {
+      const cell = document.querySelector(`#calGrid .cell[data-date="${ds}"]`);
+      if(cell) cell.classList.add('search-hit');
+    });
+    return matches;
   }
 
   function renderHistory(filterName){
@@ -885,14 +918,16 @@
     const name = e.target.value.trim();
     renderHistory(name);
     const resultBox = document.getElementById('searchResult');
+    const matches = highlightSearch(name);
     if(!name){ resultBox.innerHTML = ''; return; }
-    const matches = Object.keys(assignments).filter(d => assignments[d].person && assignments[d].person.includes(name));
     if(matches.length === 0){
       resultBox.innerHTML = `<div class="empty-hist" style="margin-bottom:16px;">"${name}"의 ${monthLabelText(currentMonth)} 근무일이 없습니다.</div>`;
     } else {
       resultBox.innerHTML = `<div class="swap-preview" style="margin-bottom:16px;">
-        <b>${name}</b>님의 ${monthLabelText(currentMonth)} 근무일: ${matches.map(d => `${fmt(d)}(${assignments[d].time || assignments[d].tag})`).join(', ')}
+        📍 <b>${name}</b>님의 ${monthLabelText(currentMonth)} 근무일: ${matches.map(d => `${fmt(d)}(${assignments[d].time || assignments[d].tag})`).join(', ')} · 달력에 노란색으로 표시됩니다.
       </div>`;
+      const firstCell = document.querySelector(`#calGrid .cell[data-date="${matches[0]}"]`);
+      if(firstCell) firstCell.scrollIntoView({behavior:'smooth', block:'center'});
     }
   });
 
