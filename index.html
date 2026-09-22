@@ -389,7 +389,7 @@
   <div class="modal">
     <button class="close-x" id="closeHolidayModal" aria-label="닫기">✕</button>
     <h3>공휴일 · 대체공휴일 관리</h3>
-    <p class="desc">여기 등록된 날짜는 당직 배정에서 자동으로 제외되고, 순번도 그만큼 건너뜁니다. 2026년은 미리 채워져 있고, 다른 연도는 직접 추가해 주세요 (설날·추석처럼 음력 기준 명절은 매년 날짜가 달라 자동 계산이 안 됩니다).</p>
+    <p class="desc">여기 등록된 날짜는 당직 배정에서 자동으로 제외되고, 순번도 그만큼 건너뜁니다.</p>
     <div id="holidayList" style="margin-bottom:14px; max-height:320px; overflow-y:auto;"></div>
     <div class="field" style="display:flex; gap:8px; align-items:flex-end;">
       <div style="flex:1;">
@@ -404,7 +404,7 @@
     </div>
     <div class="msg" id="holidayMsg"></div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" id="resetHolidays">2026년 기본값으로 초기화</button>
+      <button class="btn btn-ghost" id="resetHolidays">당해년도 기본값으로 초기화</button>
       <button class="btn btn-primary" id="closeHolidayDone">닫기</button>
     </div>
   </div>
@@ -1118,7 +1118,7 @@
   });
 
   document.getElementById('resetHolidays').addEventListener('click', async () => {
-    if(!confirm('공휴일 목록을 2026년 기본값으로 초기화하시겠습니까?')) return;
+    if(!confirm('공휴일 목록을 당해년도 기본값으로 초기화하시겠습니까?')) return;
     HOLIDAYS = JSON.parse(JSON.stringify(DEFAULT_HOLIDAYS));
     await saveHolidays();
     renderHolidayList();
