@@ -370,7 +370,7 @@
 (function(){
   // ---------- STEP 1: 범례 ----------
   const LEGEND = [
-    {swatch:'var(--pine-soft)', label:'08:10~17:10', explain:'평일 당직 근무시간입니다. 이 시간이 적힌 날짜는 정상적으로 당직 근무가 있는 날입니다.'},
+    {swatch:'var(--pine-soft)', label:'당직 근무일', explain:'정상적으로 당직 근무가 있는 날입니다. 담당자 이름이 적혀 있습니다.'},
     {swatch:'var(--closed-ink)', label:'휴관 / 정기휴무 / 대체휴일', explain:'복지관이 쉬는 날입니다. 회색으로 표시되고, 당직 담당자가 배정되지 않습니다.'},
     {swatch:'var(--rust)', label:'변경된 근무', explain:'원래 배정에서 담당자가 바뀐 날짜입니다. 칸 테두리가 주황색으로 표시되고, 누구와 바뀌었는지 함께 보여줍니다.'},
     {swatch:'var(--gold)', label:'검색된 근무일', explain:'이름 검색 결과로 찾은 날짜입니다. 노란색 테두리와 📍 표시로 눈에 띄게 나타납니다.'},
@@ -421,7 +421,7 @@
       let cls = 'cal-cell';
       if(highlightName && day.person.includes(highlightName)) cls += ' search-hit';
       cell.className = cls;
-      cell.innerHTML = `<div class="d">${day.d} (${day.dow})</div><div><div class="p">${day.person}</div><div class="t">08:10~17:10</div></div>`;
+      cell.innerHTML = `<div class="d">${day.d} (${day.dow})</div><div><div class="p">${day.person}</div></div>`;
       tutSearchCal.appendChild(cell);
     });
   }
@@ -455,9 +455,9 @@
       cell.className = 'cal-cell' + (!day.person ? ' closed' : '');
       let inner = `<div class="d">${day.d} (${day.dow})</div>`;
       if(day.person){
-        inner += `<div><div class="p">${day.person}</div><div class="t">08:10~17:10</div>`;
+        inner += `<div><div class="p">${day.person}</div>`;
       } else {
-        inner += `<div><div class="p" style="color:var(--closed-ink);">미배정</div><div class="t">-</div>`;
+        inner += `<div><div class="p" style="color:var(--closed-ink);">미배정</div>`;
       }
       if(day.note) inner += `<div class="badge-note">📝 특이사항</div>`;
       inner += `</div>`;
