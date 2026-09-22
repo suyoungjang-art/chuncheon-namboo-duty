@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>당직근무표 사용법 · 춘천남부노인복지관</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFF2E6;
+    --card:#FFFFFF;
+    --ink:#263229;
+    --ink-soft:#5B6559;
+    --line:#D9DFCF;
+    --pine:#35533F;
+    --pine-deep:#243B2C;
+    --pine-soft:#6B8F6E;
+    --gold:#C79A3D;
+    --gold-soft:#EFDFB3;
+    --rust:#A6552D;
+    --rust-soft:#EFDACB;
+    --closed:#E4E1D6;
+    --closed-ink:#8A8577;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Noto Sans KR',sans-serif;}
+  body{padding-bottom:60px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+  a{color:var(--pine);}
+
+  /* hero */
+  header.hero{
+    background:var(--pine-deep); color:#fff; padding:34px 20px 28px;
+    margin-bottom:0;
+  }
+  header.hero .eyebrow{font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold-soft); font-weight:700;}
+  header.hero h1{margin:8px 0 10px; font-size:26px; font-weight:900;}
+  header.hero p{margin:0; color:#D9E4D4; font-size:14.5px; line-height:1.7; max-width:620px;}
+  header.hero .cta-row{margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;}
+  header.hero .cta{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--gold); color:#2A2205; font-weight:800; font-size:13.5px;
+    padding:10px 16px; border-radius:10px; text-decoration:none;
+  }
+  header.hero .cta.ghost{background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.35);}
+
+  /* toc */
+  nav.toc{
+    position:sticky; top:0; z-index:20; background:var(--paper);
+    border-bottom:1px solid var(--line); padding:10px 0;
+  }
+  nav.toc .wrap{display:flex; gap:6px; overflow-x:auto; padding:0 20px; scrollbar-width:thin;}
+  nav.toc a{
+    flex:none; font-size:12.5px; font-weight:700; color:var(--pine-deep);
+    background:var(--card); border:1px solid var(--line); border-radius:999px;
+    padding:7px 13px; text-decoration:none; white-space:nowrap;
+  }
+  nav.toc a:hover{background:#E3EBE0;}
+
+  main{padding-top:26px;}
+
+  section.step{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:24px 22px; margin-bottom:20px; scroll-margin-top:64px;
+  }
+  section.step .stepnum{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:30px; height:30px; border-radius:50%; background:var(--pine-deep); color:var(--gold-soft);
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; margin-right:10px;
+  }
+  section.step h2{
+    display:flex; align-items:center; margin:0 0 8px; font-size:19px; font-weight:900; color:var(--pine-deep);
+  }
+  section.step p.lead{margin:0 0 16px; color:var(--ink-soft); font-size:14px; line-height:1.7;}
+  .howto{
+    background:#F5F7F0; border:1px dashed var(--pine-soft); border-radius:12px;
+    padding:14px 16px; margin-bottom:16px; font-size:13.5px; color:var(--ink);
+  }
+  .howto b{color:var(--pine-deep);}
+  .howto ol{margin:8px 0 0; padding-left:18px; line-height:1.9;}
+
+  .practice-box{
+    background:#FBFCF9; border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:6px;
+  }
+  .practice-label{
+    font-size:11px; font-weight:800; letter-spacing:0.06em; color:var(--pine); text-transform:uppercase;
+    margin-bottom:10px; display:flex; align-items:center; gap:6px;
+  }
+  .practice-label .dot{width:7px; height:7px; border-radius:50%; background:var(--gold); animation:pulse-dot 1.6s infinite;}
+  @keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+  /* legend widget */
+  .legend-grid{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:6px;}
+  .legend-chip{
+    display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+    border-radius:10px; padding:9px 12px; font-size:13px; cursor:pointer; flex:1; min-width:150px;
+  }
+  .legend-chip:hover{border-color:var(--pine-soft);}
+  .legend-chip .swatch{width:14px; height:14px; border-radius:4px; flex:none;}
+  .legend-explain{
+    margin-top:10px; background:var(--gold-soft); color:#5B4610; border-radius:10px; padding:10px 14px;
+    font-size:13px; display:none; line-height:1.6;
+  }
+  .legend-explain.show{display:block;}
+
+  /* mini calendar */
+  .cal-mini{display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:8px;}
+  .cal-cell{
+    background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px;
+    min-height:72px; position:relative; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .cal-cell:hover{border-color:var(--pine-soft); transform:translateY(-1px);}
+  .cal-cell.closed{background:var(--closed);}
+  .cal-cell .d{font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:700; color:var(--ink-soft);}
+  .cal-cell .p{font-size:12.5px; font-weight:700; margin-top:2px;}
+  .cal-cell .t{font-size:9.5px; color:var(--ink-soft);}
+  .cal-cell .badge-note{
+    font-size:9px; font-weight:700; color:var(--pine); background:#E3EBE0; border-radius:5px;
+    padding:1px 5px; display:inline-block; margin-top:3px; width:fit-content;
+  }
+  .cal-cell.search-hit{border-color:var(--gold); box-shadow:0 0 0 2px var(--gold) inset; background:var(--gold-soft);}
+  .cal-cell.search-hit::before{content:"📍"; position:absolute; top:4px; right:5px; font-size:11px;}
+
+  .search-row{display:flex; gap:8px; margin-bottom:12px;}
+  .search-row input{
+    flex:1; border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-size:13.5px; font-family:inherit;
+  }
+  .search-row input:focus{outline:2px solid var(--pine-soft);}
+  .search-result{font-size:12.5px; color:var(--pine-deep); min-height:18px; margin-bottom:10px;}
+
+  /* practice modal */
+  .p-overlay{
+    display:none; position:fixed; inset:0; background:rgba(36,59,44,0.5);
+    align-items:center; justify-content:center; padding:16px; z-index:50;
+  }
+  .p-overlay.show{display:flex;}
+  .p-modal{
+    background:#fff; border-radius:14px; padding:20px; max-width:420px; width:100%;
+    max-height:88vh; overflow-y:auto; position:relative;
+  }
+  .p-modal h3{margin:0 0 4px; font-size:16.5px; font-weight:800; color:var(--pine-deep);}
+  .p-modal .desc{margin:0 0 14px; font-size:12.5px; color:var(--ink-soft);}
+  .p-close{position:absolute; top:14px; right:16px; background:none; border:none; font-size:16px; cursor:pointer; color:var(--ink-soft);}
+  .p-section{border-top:1px solid var(--line); padding-top:14px; margin-top:14px;}
+  .p-section:first-of-type{border-top:none; padding-top:0; margin-top:0;}
+  .p-section h4{margin:0 0 6px; font-size:13px; font-weight:800; color:var(--pine-deep);}
+  .p-hint{font-size:11px; color:var(--ink-soft); margin-bottom:8px; line-height:1.5;}
+  .p-field{margin-bottom:10px;}
+  .p-field label{display:block; font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px;}
+  .p-field input, .p-field select, .p-field textarea{
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:13px; font-family:inherit;
+  }
+  .p-field input:focus, .p-field select:focus, .p-field textarea:focus{outline:2px solid var(--pine-soft);}
+  .p-btn{
+    border:none; border-radius:8px; padding:9px 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;
+  }
+  .p-btn-primary{background:var(--pine); color:#fff;}
+  .p-btn-primary:hover{background:var(--pine-deep);}
+  .p-btn-ghost{background:transparent; color:var(--pine); border:1px solid var(--pine-soft);}
+  .p-msg{font-size:11.5px; margin-top:6px; min-height:14px;}
+  .p-msg.ok{color:var(--pine);}
+  .p-msg.err{color:var(--rust);}
+  .p-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:10px;}
+
+  .reset-link{
+    display:inline-block; margin-top:10px; font-size:12px; color:var(--ink-soft); text-decoration:underline; cursor:pointer; background:none; border:none; font-family:inherit;
+  }
+
+  /* notice mock */
+  .notice-mock{
+    background:var(--card); border:1px solid var(--gold-soft); border-left:5px solid var(--gold);
+    border-radius:12px; padding:14px 16px;
+  }
+  .notice-mock .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .notice-mock .label{font-weight:800; color:var(--pine-deep); font-size:13.5px;}
+  .notice-mock .file{
+    display:inline-flex; align-items:center; gap:6px; background:#FBF6E9; border:1px solid var(--gold-soft);
+    border-radius:8px; padding:6px 10px; font-weight:700; font-size:12.5px; color:var(--pine-deep); margin-top:8px;
+  }
+  .notice-mock .meta{font-size:11px; color:var(--ink-soft); margin-top:5px;}
+
+  /* notes log mock */
+  table.log-table{width:100%; border-collapse:collapse; background:var(--card); border-radius:10px; overflow:hidden; border:1px solid var(--line); margin-top:4px;}
+  table.log-table th, table.log-table td{padding:8px 10px; font-size:12.5px; text-align:left; border-bottom:1px solid var(--line);}
+  table.log-table th{background:#E7ECE1; color:var(--pine-deep); font-weight:700; font-size:11.5px;}
+  table.log-table tr:last-child td{border-bottom:none;}
+  .log-empty{padding:16px; text-align:center; color:var(--ink-soft); font-size:12.5px; background:var(--card); border:1px dashed var(--line); border-radius:10px;}
+
+  /* admin cards */
+  .admin-cards{display:flex; flex-direction:column; gap:10px;}
+  .admin-card{
+    background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+  }
+  .admin-card .t{font-weight:800; color:var(--pine-deep); font-size:13.5px; margin-bottom:3px;}
+  .admin-card .d{font-size:12.5px; color:var(--ink-soft); line-height:1.6;}
+  .admin-card.warn{border-left:4px solid var(--rust); background:var(--rust-soft);}
+  .admin-card.warn .t{color:var(--rust);}
+
+  .note-box{
+    background:#EEF2E6; border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--pine-deep); line-height:1.6; margin-top:10px;
+  }
+
+  footer.foot{
+    text-align:center; font-size:12px; color:var(--ink-soft); line-height:1.8; margin-top:24px; padding:0 20px;
+  }
+
+  @media (max-width:520px){
+    header.hero h1{font-size:22px;}
+    section.step{padding:18px 16px;}
+    .cal-mini{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">춘천남부노인복지관 · 당직근무표</div>
+    <h1>당직근무표 사용법</h1>
+    <p>이 페이지는 실제 당직근무표 웹앱과 똑같이 생긴 "연습 화면"이 곳곳에 들어 있습니다. 직접 눌러보고 입력해 보면서 배우시면 됩니다 — 여기서는 무엇을 눌러도 실제 당직표에는 아무 영향이 없으니 마음껏 눌러보세요.</p>
+    <div class="cta-row">
+      <a class="cta" href="https://suyoungjang-art.github.io/chuncheon-namboo-duty/" target="_blank" rel="noopener">👉 실제 당직표 열기</a>
+      <a class="cta ghost" href="#step1">튜토리얼 시작하기 ↓</a>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#step1">① 달력 읽는 법</a>
+    <a href="#step2">② 이름 검색</a>
+    <a href="#step3">③ 공지사항</a>
+    <a href="#step4">④ 근무 바꾸기·이름 변경</a>
+    <a href="#step5">⑤ 특이사항</a>
+    <a href="#step6">⑥ 관리자 모드</a>
+    <a href="#step7">⑦ 마무리</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- STEP 1: 색상/뱃지 -->
+  <section class="step" id="step1">
+    <h2><span class="stepnum">1</span>달력 읽는 법</h2>
+    <p class="lead">당직표를 열면 이런 달력이 보입니다. 칸마다 색깔과 표시가 조금씩 다른데, 무슨 뜻인지 아래 항목을 하나씩 눌러서 확인해 보세요.</p>
+    <div class="practice-box">
+      <div class="practice-label"><span class="dot"></span>눌러보세요</div>
+      <div class="legend-grid" id="legendGrid"></div>
+      <div class="legend-explain" id="legendExplain"></div>
+    </div>
+  </section>
+
+  <!-- STEP 2: 검색 -->
+  <section class="step" id="step2">
+    <h2><span class="stepnum">2</span>이름으로 검색하기</h2>
+    <p class="lead">누가 언제 당직인지 찾고 싶을 때는 검색창에 이름을 입력하면 됩니다. 해당 날짜가 달력에서 노란색으로 반짝이며 표시됩니다. 같은 사람이 이 달에 여러 번 배정되어 있어도 전부 찾아줍니다.</p>
+    <div class="howto">
+      <b>직접 해보세요</b>
+      <ol>
+        <li>아래 검색창에 <b>"박연옥"</b>이라고 입력해 보세요.</li>
+        <li>달력에서 해당 날짜(들)가 노란색으로 표시되는지 확인하세요.</li>
+        <li>검색창을 지우면 다시 원래대로 돌아옵니다.</li>
+      </ol>
+    </div>
+    <div class="practice-box">
+      <div class="practice-label"><span class="dot"></span>연습해보세요</div>
+      <div class="search-row">
+        <input type="text" id="tutSearch" placeholder="이름을 입력해 보세요 (예: 박연옥)">
+      </div>
+      <div class="search-result" id="tutSearchResult"></div>
+      <div class="cal-mini" id="tutSearchCal"></div>
+    </div>
+  </section>
+
+  <!-- STEP 3: 공지사항 -->
+  <section class="step" id="step3">
+    <h2><span class="stepnum">3</span>당직 공지사항 확인하기</h2>
+    <p class="lead">화면 위쪽에는 항상 공지사항 칸이 있습니다. PDF 파일이 올라와 있으면 <b>누구나 로그인 없이</b> 눌러서 열거나 다운로드할 수 있습니다.</p>
+    <div class="notice-mock">
+      <div class="row">
+        <span class="label">📌 당직 공지사항</span>
+      </div>
+      <div class="file">📄 예시_공지사항.pdf</div>
+      <div class="meta">2026. 9. 1. 등록 · 눌러서 확인하거나 다운로드하세요.</div>
+    </div>
+    <div class="note-box">💡 공지문을 새로 올리거나 바꾸는 것은 관리자 인증번호가 있어야 합니다 (⑥ 관리자 모드에서 설명합니다). 다운로드는 누구나 자유롭게 할 수 있습니다.</div>
+  </section>
+
+  <!-- STEP 4: 날짜 클릭 -->
+  <section class="step" id="step4">
+    <h2><span class="stepnum">4</span>날짜를 눌러서 근무 바꾸기 / 이름 변경하기</h2>
+    <p class="lead">달력에서 날짜 칸을 누르면 그 날의 근무 정보 창이 뜹니다. 이 창에서 할 수 있는 일은 두 가지입니다.</p>
+    <div class="howto">
+      <b>직접 해보세요</b>
+      <ol>
+        <li>아래 연습 달력에서 아무 날짜나 눌러보세요.</li>
+        <li>뜨는 창에서 <b>"다른 날짜와 맞바꾸기"</b> 또는 <b>"당직근무자 변경"</b> 중 하나를 시도해 보세요.
+          <ul style="margin:6px 0 0; padding-left:16px;">
+            <li><b>맞바꾸기</b>: 나와 다른 날짜의 담당자와 서로 자리를 바꿉니다. (예: 내가 바쁜 날 ↔ 동료가 쉬는 날)</li>
+            <li><b>이름 변경</b>: 맞바꿀 상대가 없을 때, 그 날 담당자 이름만 바로 바꿉니다. 이미 이 달에 배정된 이름을 다시 써도 괜찮습니다.</li>
+          </ul>
+        </li>
+        <li>아래쪽 "📝 특이사항"란에 메모도 남겨보세요 — ⑤번에서 이어집니다.</li>
+      </ol>
+    </div>
+    <div class="practice-box">
+      <div class="practice-label"><span class="dot"></span>연습해보세요 (날짜를 눌러보세요)</div>
+      <div class="cal-mini" id="tutModalCal"></div>
+      <button class="reset-link" id="resetModalPractice">↺ 연습 내용 초기화</button>
+    </div>
+  </section>
+
+  <!-- STEP 5: 특이사항 -->
+  <section class="step" id="step5">
+    <h2><span class="stepnum">5</span>특이사항 확인하기</h2>
+    <p class="lead">④번에서 날짜별로 남긴 특이사항은 화면 맨 아래 "일자별 특이사항"란에 날짜 순서대로 모여서 보입니다. 방금 ④번에서 메모를 남기셨다면 아래에 바로 나타납니다.</p>
+    <div class="practice-box">
+      <div class="practice-label"><span class="dot"></span>④번 연습 결과가 여기에 표시됩니다</div>
+      <div id="tutNotesLog"></div>
+    </div>
+  </section>
+
+  <!-- STEP 6: 관리자 모드 -->
+  <section class="step" id="step6">
+    <h2><span class="stepnum">6</span>관리자 모드</h2>
+    <p class="lead">화면 오른쪽 위 "🔐 관리자 모드" 버튼을 누르면 아래 4가지 관리 기능을 사용할 수 있습니다. 관리자 인증번호가 필요하며, 인증번호는 <b>기관 관리자에게 문의</b>해 주세요. 인증번호는 한 번만 입력하면 4가지 기능을 모두 이용할 수 있습니다.</p>
+    <div class="admin-cards">
+      <div class="admin-card">
+        <div class="t">전체 당직순번 관리</div>
+        <div class="d">전체 직원의 당직 순서를 바꾸거나, 이름을 추가·삭제할 수 있습니다.</div>
+      </div>
+      <div class="admin-card">
+        <div class="t">공휴일 관리</div>
+        <div class="d">공휴일·대체공휴일 날짜를 등록하면 당직 배정에서 자동으로 제외되고, 순번도 그만큼 건너뜁니다.</div>
+      </div>
+      <div class="admin-card warn">
+        <div class="t">⚠ 이 달 초기화</div>
+        <div class="d">이 달에 있었던 모든 변경 내용을 지우고 처음 상태로 되돌립니다. <b>되돌릴 수 없으니 신중하게 사용해 주세요.</b></div>
+      </div>
+      <div class="admin-card">
+        <div class="t">인증번호 변경</div>
+        <div class="d">관리자 인증번호를 새로 바꿀 수 있습니다. 바꾸고 나면 모든 사람에게 새 번호가 똑같이 적용됩니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 7: 마무리 -->
+  <section class="step" id="step7">
+    <h2><span class="stepnum">7</span>이제 실제 화면에서 사용해 보세요</h2>
+    <p class="lead">여기까지 연습해 보셨다면 실제 당직표에서도 똑같이 사용하실 수 있습니다. 아래 링크로 이동해서 시작해 보세요.</p>
+    <div class="note-box">
+      💡 실제 화면에서 입력한 내용은 <b>모든 직원에게 그대로 공유</b>됩니다 (여기 연습 화면과 다르게, 실제로 저장됩니다). 맞바꾸기나 이름 변경을 할 때는 신청자 이름을 정확히 입력해 주세요.
+    </div>
+    <div class="cta-row" style="margin-top:16px;">
+      <a class="cta" style="background:var(--pine); color:#fff;" href="https://suyoungjang-art.github.io/chuncheon-namboo-duty/" target="_blank" rel="noopener">👉 실제 당직표 열기</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  사단법인 동부디아코니아 춘천남부노인복지관 · 강원특별자치도 춘천시 방송길 86<br>
+  이 페이지는 사용법 안내용이며, 여기서의 연습 내용은 저장되거나 공유되지 않습니다.
+</footer>
+
+<script>
+(function(){
+  // ---------- STEP 1: 범례 ----------
+  const LEGEND = [
+    {swatch:'var(--pine-soft)', label:'08:10~17:10', explain:'평일 당직 근무시간입니다. 이 시간이 적힌 날짜는 정상적으로 당직 근무가 있는 날입니다.'},
+    {swatch:'var(--closed-ink)', label:'휴관 / 정기휴무 / 대체휴일', explain:'복지관이 쉬는 날입니다. 회색으로 표시되고, 당직 담당자가 배정되지 않습니다.'},
+    {swatch:'var(--rust)', label:'변경된 근무', explain:'원래 배정에서 담당자가 바뀐 날짜입니다. 칸 테두리가 주황색으로 표시되고, 누구와 바뀌었는지 함께 보여줍니다.'},
+    {swatch:'var(--gold)', label:'검색된 근무일', explain:'이름 검색 결과로 찾은 날짜입니다. 노란색 테두리와 📍 표시로 눈에 띄게 나타납니다.'},
+  ];
+  const legendGrid = document.getElementById('legendGrid');
+  const legendExplain = document.getElementById('legendExplain');
+  LEGEND.forEach((item, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'legend-chip';
+    chip.innerHTML = `<span class="swatch" style="background:${item.swatch}"></span>${item.label}`;
+    chip.addEventListener('click', () => {
+      legendExplain.textContent = item.explain;
+      legendExplain.classList.add('show');
+    });
+    legendGrid.appendChild(chip);
+  });
+  const rotChip = document.createElement('div');
+  rotChip.className = 'legend-chip';
+  rotChip.innerHTML = `<span class="swatch mono" style="background:var(--gold-soft); color:#7A5A17; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700;">#N</span>당직 순번 번호`;
+  rotChip.addEventListener('click', () => {
+    legendExplain.textContent = '오른쪽 위 숫자는 당직 순번 번호입니다. 전체 당직순번표에서 몇 번째 차례인지 보여줍니다.';
+    legendExplain.classList.add('show');
+  });
+  legendGrid.appendChild(rotChip);
+  const noteChip = document.createElement('div');
+  noteChip.className = 'legend-chip';
+  noteChip.innerHTML = `<span class="swatch" style="background:#E3EBE0; display:flex; align-items:center; justify-content:center; font-size:9px;">📝</span>특이사항 있음`;
+  noteChip.addEventListener('click', () => {
+    legendExplain.textContent = '이 날짜에 특이사항이 적혀 있다는 표시입니다. 날짜를 눌러보면 내용을 확인할 수 있습니다.';
+    legendExplain.classList.add('show');
+  });
+  legendGrid.appendChild(noteChip);
+
+  // ---------- STEP 2: 검색 연습 ----------
+  const SEARCH_SAMPLE = [
+    {d:'3', dow:'화', person:'홍선영'},
+    {d:'4', dow:'수', person:'박연옥'},
+    {d:'5', dow:'목', person:'백영진'},
+    {d:'10', dow:'화', person:'박연옥'},
+    {d:'11', dow:'수', person:'허경영'},
+    {d:'12', dow:'목', person:'조경연'},
+  ];
+  const tutSearchCal = document.getElementById('tutSearchCal');
+  function renderSearchCal(highlightName){
+    tutSearchCal.innerHTML = '';
+    SEARCH_SAMPLE.forEach(day => {
+      const cell = document.createElement('div');
+      let cls = 'cal-cell';
+      if(highlightName && day.person.includes(highlightName)) cls += ' search-hit';
+      cell.className = cls;
+      cell.innerHTML = `<div class="d">${day.d} (${day.dow})</div><div><div class="p">${day.person}</div><div class="t">08:10~17:10</div></div>`;
+      tutSearchCal.appendChild(cell);
+    });
+  }
+  renderSearchCal('');
+  document.getElementById('tutSearch').addEventListener('input', (e) => {
+    const name = e.target.value.trim();
+    renderSearchCal(name);
+    const resultBox = document.getElementById('tutSearchResult');
+    if(!name){ resultBox.textContent = ''; return; }
+    const matches = SEARCH_SAMPLE.filter(d => d.person.includes(name));
+    resultBox.textContent = matches.length
+      ? `📍 "${name}"님의 근무일: ${matches.map(d => d.d + '일').join(', ')} (${matches.length}건 찾음)`
+      : `"${name}"의 근무일을 찾지 못했습니다. (예시 이름: 홍선영, 박연옥, 백영진, 허경영, 조경연)`;
+  });
+
+  // ---------- STEP 4/5: 모달 연습 ----------
+  const MODAL_DEFAULT = [
+    {d:'3', dow:'화', person:'홍선영', note:''},
+    {d:'4', dow:'수', person:'박연옥', note:''},
+    {d:'5', dow:'목', person:'백영진', note:''},
+    {d:'6', dow:'금', person:'', note:''},
+  ];
+  let modalState = JSON.parse(JSON.stringify(MODAL_DEFAULT));
+  const tutModalCal = document.getElementById('tutModalCal');
+  let activeIdx = null;
+
+  function renderModalCal(){
+    tutModalCal.innerHTML = '';
+    modalState.forEach((day, idx) => {
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell' + (!day.person ? ' closed' : '');
+      let inner = `<div class="d">${day.d} (${day.dow})</div>`;
+      if(day.person){
+        inner += `<div><div class="p">${day.person}</div><div class="t">08:10~17:10</div>`;
+      } else {
+        inner += `<div><div class="p" style="color:var(--closed-ink);">미배정</div><div class="t">-</div>`;
+      }
+      if(day.note) inner += `<div class="badge-note">📝 특이사항</div>`;
+      inner += `</div>`;
+      cell.innerHTML = inner;
+      cell.addEventListener('click', () => openPracticeModal(idx));
+      tutModalCal.appendChild(cell);
+    });
+    renderNotesLog();
+  }
+
+  function renderNotesLog(){
+    const box = document.getElementById('tutNotesLog');
+    const withNotes = modalState.filter(d => d.note && d.note.trim());
+    if(withNotes.length === 0){
+      box.innerHTML = `<div class="log-empty">아직 등록된 특이사항이 없습니다. ④번에서 날짜를 눌러 특이사항을 남겨 보세요.</div>`;
+      return;
+    }
+    const rows = withNotes.map(d => `
+      <tr><td class="mono">${d.d}일</td><td>${d.person || '-'}</td><td>${d.note}</td></tr>
+    `).join('');
+    box.innerHTML = `<table class="log-table"><thead><tr><th>날짜</th><th>당직자</th><th>특이사항</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  // practice overlay (shared single instance)
+  const pOverlay = document.createElement('div');
+  pOverlay.className = 'p-overlay';
+  pOverlay.innerHTML = `
+    <div class="p-modal">
+      <button class="p-close" aria-label="닫기">✕</button>
+      <h3 id="pmTitle"></h3>
+      <p class="desc" id="pmDesc"></p>
+
+      <div class="p-section">
+        <h4>다른 날짜와 맞바꾸기</h4>
+        <p class="p-hint">이 달 안에서 담당자가 배정된 다른 날짜와 서로 바꿉니다.</p>
+        <div class="p-field">
+          <label>맞바꿀 날짜</label>
+          <select id="pmSwapSel"></select>
+        </div>
+        <div class="p-field">
+          <label>신청자 이름</label>
+          <input type="text" id="pmRequester" placeholder="예: 박연옥">
+        </div>
+        <div class="p-msg" id="pmSwapMsg"></div>
+        <div class="p-actions">
+          <button class="p-btn p-btn-primary" id="pmSwapBtn">변경 확정</button>
+        </div>
+      </div>
+
+      <div class="p-section">
+        <h4>당직근무자 변경</h4>
+        <p class="p-hint">맞바꿀 상대가 없을 때, 이 날의 담당자 이름만 바로 바꿉니다. 이미 배정된 이름을 다시 써도 괜찮습니다.</p>
+        <div class="p-field">
+          <label>새 담당자 이름</label>
+          <input type="text" id="pmRenameInput" placeholder="예: 박연옥">
+        </div>
+        <div class="p-msg" id="pmRenameMsg"></div>
+        <div class="p-actions">
+          <button class="p-btn p-btn-primary" id="pmRenameBtn">이름 변경</button>
+        </div>
+      </div>
+
+      <div class="p-section">
+        <h4>📝 특이사항</h4>
+        <p class="p-hint">근무 중 전달할 사항을 남겨두면, 다음에 이 날짜를 보는 사람이 확인할 수 있습니다.</p>
+        <div class="p-field">
+          <textarea id="pmNoteInput" rows="3" placeholder="예: 3층 정수기 고장 접수함"></textarea>
+        </div>
+        <div class="p-msg" id="pmNoteMsg"></div>
+        <div class="p-actions">
+          <button class="p-btn p-btn-primary" id="pmNoteBtn">특이사항 저장</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(pOverlay);
+
+  const pmSwapSel = pOverlay.querySelector('#pmSwapSel');
+  const pmSwapMsg = pOverlay.querySelector('#pmSwapMsg');
+  const pmRenameMsg = pOverlay.querySelector('#pmRenameMsg');
+  const pmNoteMsg = pOverlay.querySelector('#pmNoteMsg');
+
+  function openPracticeModal(idx){
+    activeIdx = idx;
+    const day = modalState[idx];
+    pOverlay.querySelector('#pmTitle').textContent = `9월 ${day.d}일 (${day.dow}) 근무 정보`;
+    pOverlay.querySelector('#pmDesc').textContent = `연습 화면 · 현재 상태: ${day.person || '미배정'}`;
+
+    const others = modalState.filter((d,i) => i !== idx && d.person);
+    if(others.length){
+      pmSwapSel.innerHTML = others.map(d => {
+        const i = modalState.indexOf(d);
+        return `<option value="${i}">${d.d}일 (${d.person})</option>`;
+      }).join('');
+    } else {
+      pmSwapSel.innerHTML = `<option value="">맞바꿀 날짜 없음</option>`;
+    }
+    pOverlay.querySelector('#pmRequester').value = '';
+    pmSwapMsg.textContent = ''; pmSwapMsg.className = 'p-msg';
+
+    pOverlay.querySelector('#pmRenameInput').value = '';
+    pmRenameMsg.textContent = ''; pmRenameMsg.className = 'p-msg';
+
+    pOverlay.querySelector('#pmNoteInput').value = day.note || '';
+    pmNoteMsg.textContent = ''; pmNoteMsg.className = 'p-msg';
+
+    pOverlay.classList.add('show');
+  }
+  function closePracticeModal(){ pOverlay.classList.remove('show'); }
+  pOverlay.querySelector('.p-close').addEventListener('click', closePracticeModal);
+  pOverlay.addEventListener('click', (e) => { if(e.target === pOverlay) closePracticeModal(); });
+
+  pOverlay.querySelector('#pmSwapBtn').addEventListener('click', () => {
+    const other = pmSwapSel.value;
+    const requester = pOverlay.querySelector('#pmRequester').value.trim();
+    if(other === ''){ pmSwapMsg.textContent = '맞바꿀 날짜가 없습니다.'; pmSwapMsg.className = 'p-msg err'; return; }
+    if(!requester){ pmSwapMsg.textContent = '신청자 이름을 입력해 주세요.'; pmSwapMsg.className = 'p-msg err'; return; }
+    const i = activeIdx, j = parseInt(other);
+    const tmpPerson = modalState[i].person;
+    modalState[i].person = modalState[j].person;
+    modalState[j].person = tmpPerson;
+    pmSwapMsg.textContent = '변경되었습니다! (연습 화면에만 반영됩니다)'; pmSwapMsg.className = 'p-msg ok';
+    renderModalCal();
+    setTimeout(() => openPracticeModal(i), 400);
+  });
+
+  pOverlay.querySelector('#pmRenameBtn').addEventListener('click', () => {
+    const name = pOverlay.querySelector('#pmRenameInput').value.trim();
+    if(!name){ pmRenameMsg.textContent = '이름을 입력해 주세요.'; pmRenameMsg.className = 'p-msg err'; return; }
+    modalState[activeIdx].person = name;
+    pmRenameMsg.textContent = '담당자가 변경되었습니다! (연습 화면에만 반영됩니다)'; pmRenameMsg.className = 'p-msg ok';
+    renderModalCal();
+    setTimeout(() => openPracticeModal(activeIdx), 400);
+  });
+
+  pOverlay.querySelector('#pmNoteBtn').addEventListener('click', () => {
+    const text = pOverlay.querySelector('#pmNoteInput').value.trim();
+    modalState[activeIdx].note = text;
+    pmNoteMsg.textContent = '특이사항이 저장되었습니다! 아래 ⑤번에서 확인해 보세요.'; pmNoteMsg.className = 'p-msg ok';
+    renderModalCal();
+  });
+
+  document.getElementById('resetModalPractice').addEventListener('click', () => {
+    modalState = JSON.parse(JSON.stringify(MODAL_DEFAULT));
+    renderModalCal();
+    closePracticeModal();
+  });
+
+  renderModalCal();
+})();
+</script>
+</body>
+</html>
